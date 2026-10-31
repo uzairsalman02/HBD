@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Humdard (Slowed Edition) - Watercolor Lyric Canvas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body, html {
+      width: 100vw; height: 100vh;
+      overflow: hidden;
+      background-color: #faf6f0;
+      font-family: 'Amatic SC', cursive;
+      color: #3d352e;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    /* Watercolor Paper Grain Overlay */
+    body::after {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 60;
+      opacity: 0.42;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.18'/%3E%3C/svg%3E");
+    }
+
+    /* 1. PORTRAIT ROTATE OVERLAY */
+    #rotate-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: #faf6f0;
+      display: none;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+    }
+    .phone-icon {
+      width: 55px; height: 95px;
+      border: 3.5px solid #d96b43;
+      border-radius: 12px;
+      margin-bottom: 25px;
+      position: relative;
+      animation: rotatePhone 2.2s infinite ease-in-out;
+    }
+    .phone-icon::after {
+      content: ""; position: absolute;
+      bottom: 7px; left: 50%; transform: translateX(-50%);
+      width: 10px; height: 10px;
+      border-radius: 50%; background: #d96b43;
+    }
+    @keyframes rotatePhone {
+      0%, 15% { transform: rotate(0deg); }
+      55%, 80% { transform: rotate(-90deg); }
+      100% { transform: rotate(0deg); }
+    }
+    #rotate-overlay h2 { font-size: 3.2rem; color: #3d352e; letter-spacing: 2px; }
+    #rotate-overlay p { font-size: 2rem; color: #d96b43; margin-top: 8px; }
+
+    @media screen and (orientation: portrait) {
+      #rotate-overlay { display: flex; }
+    }
+
+    /* 2. START & END OVERLAYS */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 150;
+      background: rgba(250, 246, 240, 0.94);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.8s ease;
+      text-align: center; padding: 1rem;
+    }
+    .modal-overlay.hidden {
+      opacity: 0; pointer-events: none;
+    }
+    .modal-overlay h1 {
+      font-size: clamp(3.2rem, 7vw, 5.8rem);
+      letter-spacing: 5px; color: #3d352e;
+    }
+    .modal-overlay p {
+      font-size: clamp(1.6rem, 3.5vw, 2.5rem);
+      color: #8c7a6b; margin-top: 6px; letter-spacing: 2px;
+    }
+    .action-btn {
+      margin-top: 22px;
+      padding: 10px 36px;
+      font-family: 'Amatic SC', cursive;
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      font-weight: 700;
+      color: #fff;
+      background: #d96b43;
+      border: none; border-radius: 50px;
+      box-shadow: 0 8px 24px rgba(217, 107, 67, 0.35);
+      cursor: pointer;
+      letter-spacing: 2.5px;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .action-btn:hover { background: #c55a34; transform: scale(1.04); }
+    .action-btn:active { transform: scale(0.95); }
+
+    /* Speed & Fullscreen Controls (Top Right) */
+    #top-controls {
+      position: fixed; top: 16px; right: 16px; z-index: 80;
+      display: flex; gap: 10px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    #top-controls.visible { opacity: 0.9; pointer-events: auto; }
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.78);
+      border: 1.5px solid #d96b43;
+      color: #d96b43;
+      font-family: 'Amatic SC', cursive;
+      font-size: 1.45rem; font-weight: 700;
+      padding: 4px 14px; border-radius: 20px;
+      cursor: pointer; letter-spacing: 1px;
+    }
+
+    /* 3. FLOATING PARTICLES CANVAS */
+    #particles-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 40;
+    }
+
+    /* 4. VIRTUAL 1920x1080 STAGE (Same on Mobile & PC) */
+    #viewport {
+      width: 100vw; height: 100vh;
+      position: relative; overflow: hidden;
+    }
+    #stage-scaler {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 1920px; height: 1080px;
+      transform-origin: center center;
+      will-change: transform;
+    }
+    #world {
+      position: absolute; top: 0; left: 0;
+      width: 7800px; height: 1080px;
+      will-change: transform;
+    }
+
+    .scene-item {
+      position: absolute;
+      transform: translate(-50%, -50%);
+    }
+
+    /* 5. VIDEO-ACCURATE WATERCOLOR BRUSH & SKETCH REVEAL */
+    .watercolor-art {
+      position: relative;
+      width: 560px; height: 390px;
+      filter: url(#torn-brush-edges);
+      mix-blend-mode: multiply;
+    }
+
+    .watercolor-art .layer {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      -webkit-mask-image: radial-gradient(ellipse 76% 72% at 50% 50%, #000 48%, rgba(0,0,0,0.6) 68%, transparent 92%);
+      mask-image: radial-gradient(ellipse 76% 72% at 50% 50%, #000 48%, rgba(0,0,0,0.6) 68%, transparent 92%);
+    }
+
+    /* Stage 1: Raw Ink & Pencil Sketch Outline */
+    .layer-sketch {
+      filter: url(#ink-sketch-lines);
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 1.1s ease, transform 2.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Stage 2: Light Watercolor Wash */
+    .layer-wash {
+      filter: url(#watercolor-paper-bleed) saturate(0.6) brightness(1.15);
+      opacity: 0;
+      clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
+      transition: clip-path 2.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.9s ease;
+    }
+
+    /* Stage 3: Full Rich Watercolor Paint */
+    .layer-paint {
+      filter: url(#watercolor-paper-bleed) saturate(1.35) contrast(1.08);
+      opacity: 0;
+      clip-path: polygon(
+        50% 50%, 50% 50%, 50% 50%, 50% 50%, 
+        50% 50%, 50% 50%, 50% 50%, 50% 50%
+      );
+      transition: clip-path 3.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 1s ease;
+    }
+
+    .watercolor-art.step-sketch .layer-sketch {
+      opacity: 0.85;
+      transform: scale(1);
+    }
+    .watercolor-art.step-wash .layer-wash {
+      opacity: 0.75;
+      clip-path: polygon(-10% 10%, 90% -10%, 110% 85%, 5% 110%);
+    }
+    .watercolor-art.step-paint .layer-paint {
+      opacity: 1;
+      clip-path: polygon(
+        -15% -15%, 50% -20%, 115% -10%, 120% 50%, 
+        115% 115%, 50% 120%, -15% 110%, -20% 50%
+      );
+    }
+
+    /* Paint Splatter Dots around active artwork */
+    .splatter-ring {
+      position: absolute; inset: -25px;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.85);
+      transition: opacity 1.8s ease 0.5s, transform 2.5s cubic-bezier(0.22, 1, 0.36, 1) 0.5s;
+      background-image: 
+        radial-gradient(circle at 14% 22%, #d96b43 3px, transparent 4px),
+        radial-gradient(circle at 86% 18%, #e69a4c 4px, transparent 5px),
+        radial-gradient(circle at 82% 84%, #d96b43 2.5px, transparent 3.5px),
+        radial-gradient(circle at 18% 78%, #c85a32 3.5px, transparent 4.5px),
+        radial-gradient(circle at 92% 52%, #e69a4c 2px, transparent 3px),
+        radial-gradient(circle at 8% 48%, #d96b43 3px, transparent 4px);
+    }
+    .watercolor-art.step-paint .splatter-ring {
+      opacity: 0.65;
+      transform: scale(1);
+    }
+
+    /* Handwritten Lyrics Styling */
+    .lyric-block {
+      position: absolute;
+      font-size: 3.25rem;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: 3px;
+      color: #463c33;
+      white-space: pre-line;
+      text-transform: uppercase;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 3.5px; height: 2.8rem;
+      background-color: #d96b43;
+      vertical-align: text-bottom;
+      margin-left: 6px;
+      animation: blink 0.75s infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  </style>
+</head>
+<body>
+
+  <!-- SVG Filters for Torn Brush Edges, Sketch Outlines & Watercolor Bleed -->
+  <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
+    <defs>
+      <filter id="torn-brush-edges" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="4" seed="7" result="roughNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="roughNoise" scale="38" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+
+      <filter id="ink-sketch-lines">
+        <feColorMatrix type="matrix" values="
+          0.33 0.33 0.33 0 0
+          0.33 0.33 0.33 0 0
+          0.33 0.33 0.33 0 0
+          0    0    0    1 0" result="gray" />
+        <feComponentTransfer in="gray" result="highContrast">
+          <feFuncR type="linear" slope="3.2" intercept="-0.9" />
+          <feFuncG type="linear" slope="3.2" intercept="-0.9" />
+          <feFuncB type="linear" slope="3.2" intercept="-0.9" />
+        </feComponentTransfer>
+        <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" result="sketchGrain" />
+        <feDisplacementMap in="highContrast" in2="sketchGrain" scale="4.5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+
+      <filter id="watercolor-paper-bleed">
+        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" seed="3" result="waterNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="waterNoise" scale="11" xChannelSelector="R" yChannelSelector="G" result="wetPaint" />
+        <feGaussianBlur in="wetPaint" stdDeviation="0.45" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Portrait Warning -->
+  <div id="rotate-overlay">
+    <div class="phone-icon"></div>
+    <h2>ROTATE YOUR MOBILE</h2>
+    <p>Video jaisa full experience dekhne ke liye phone ko Landscape karein ♥</p>
+  </div>
+
+  <!-- Start Screen -->
+  <div id="start-overlay" class="modal-overlay">
+    <h1>HUMDARD ♥</h1>
+    <p>Slowed & Dreamy Watercolor Lyric Experience</p>
+    <button class="action-btn" onclick="startExperience()">▶ PLAY SLOWED FULLSCREEN</button>
+  </div>
+
+  <!-- End / Replay Screen -->
+  <div id="end-overlay" class="modal-overlay hidden">
+    <h1>JO TU MERA HUMDARD HAI ♥</h1>
+    <p>Song khatam ho gaya hai. Kya aap dobara sunna chahenge?</p>
+    <button class="action-btn" onclick="replayExperience()">↻ REPLAY AGAIN</button>
+  </div>
+
+  <!-- Top Right Controls -->
+  <div id="top-controls">
+    <button class="ctrl-btn" id="speed-btn" onclick="cycleSpeed()">🐢 SPEED: 0.85x (SLOWED)</button>
+    <button class="ctrl-btn" onclick="toggleFullScreen()">⛶ FULLSCREEN</button>
+  </div>
+
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- Audio/Video Player: Automatically picks song from "res/" folder -->
+  <audio id="audio-player" preload="auto" playsinline>
+    <source src="res/song.mp3" type="audio/mpeg">
+    <source src="res/song.mp4" type="video/mp4">
+    <source src="res/song.wav" type="audio/wav">
+  </audio>
+
+  <!-- Virtual 1920x1080 Stage (All images load from "res/" folder) -->
+  <div id="viewport">
+    <div id="stage-scaler">
+      <div id="world">
+
+        <!-- Intro Left Image (res/intro.jpg or .png) -->
+        <div class="scene-item" style="left: 460px; top: 690px;">
+          <div class="watercolor-art step-sketch step-wash step-paint" style="width: 450px; height: 330px;" data-img="res/intro"></div>
+        </div>
+
+        <!-- SCENE 1: res/1.jpg or .png -->
+        <div class="scene-item" style="left: 1080px; top: 360px;">
+          <div class="watercolor-art" id="art-1" data-img="res/1"></div>
+        </div>
+        <div class="lyric-block" id="lyric-1" style="left: 840px; top: 610px;"></div>
+
+        <!-- SCENE 2: res/2.jpg or .png -->
+        <div class="lyric-block" id="lyric-2a" style="left: 1840px; top: 250px;"></div>
+        <div class="lyric-block" id="lyric-2b" style="left: 2240px; top: 250px;"></div>
+        <div class="scene-item" style="left: 2120px; top: 720px;">
+          <div class="watercolor-art" id="art-2" data-img="res/2"></div>
+        </div>
+
+        <!-- SCENE 3: res/3.jpg or .png -->
+        <div class="scene-item" style="left: 3300px; top: 380px;">
+          <div class="watercolor-art" id="art-3" data-img="res/3"></div>
+        </div>
+        <div class="lyric-block" id="lyric-3" style="left: 3060px; top: 640px;"></div>
+
+        <!-- SCENE 4: res/4.jpg or .png -->
+        <div class="lyric-block" id="lyric-4a" style="left: 4220px; top: 260px;"></div>
+        <div class="scene-item" style="left: 4450px; top: 710px;">
+          <div class="watercolor-art" id="art-4" data-img="res/4"></div>
+        </div>
+
+        <!-- SCENE 5: res/5.jpg or .png -->
+        <div class="scene-item" style="left: 5620px; top: 390px;">
+          <div class="watercolor-art" id="art-5" data-img="res/5"></div>
+        </div>
+        <div class="lyric-block" id="lyric-5" style="left: 5400px; top: 650px;"></div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- 0. SMART IMAGE LOADER FROM "res/" FOLDER ---
+    // Automatically supports .jpg, .png, .jpeg, .webp inside "res/" folder!
+    const extensions = ['.jpg', '.png', '.jpeg', '.webp'];
+
+    function createSmartImg(basePath, className) {
+      const img = document.createElement('img');
+      img.className = className;
+      img.alt = "";
+      
+      // If user already wrote extension (e.g. res/1.png), use it directly
+      if (/\.(jpg|jpeg|png|webp|gif)$/i.test(basePath)) {
+        img.src = basePath;
+        return img;
+      }
+
+      // Otherwise automatically try .jpg -> .png -> .jpeg -> .webp
+      let extIndex = 0;
+      img.src = basePath + extensions[extIndex];
+      img.onerror = function() {
+        extIndex++;
+        if (extIndex < extensions.length) {
+          img.src = basePath + extensions[extIndex];
+        }
+      };
+      return img;
+    }
+
+    document.querySelectorAll('.watercolor-art').forEach(box => {
+      const basePath = box.getAttribute('data-img');
+      const splatter = document.createElement('div');
+      splatter.className = 'splatter-ring';
+      
+      box.appendChild(splatter);
+      box.appendChild(createSmartImg(basePath, 'layer layer-sketch'));
+      box.appendChild(createSmartImg(basePath, 'layer layer-wash'));
+      box.appendChild(createSmartImg(basePath, 'layer layer-paint'));
+    });
+
+    // --- 1. DESKTOP SCALER FOR MOBILE ---
+    const stageScaler = document.getElementById('stage-scaler');
+    function updateStageScale() {
+      const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+      stageScaler.style.transform = `translate(-50%, -50%) scale(${scale})`;
+    }
+    window.addEventListener('resize', updateStageScale);
+    window.addEventListener('orientationchange', () => setTimeout(updateStageScale, 200));
+    updateStageScale();
+
+    // --- 2. FULLSCREEN & LANDSCAPE LOCK ---
+    function requestFullScreenAndLock() {
+      const docEl = document.documentElement;
+      try {
+        if (docEl.requestFullscreen && !document.fullscreenElement) {
+          docEl.requestFullscreen().catch(() => {});
+        } else if (docEl.webkitRequestFullscreen && !document.webkitFullscreenElement) {
+          docEl.webkitRequestFullscreen();
+        }
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('landscape').catch(() => {});
+        }
+      } catch (e) {}
+    }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) requestFullScreenAndLock();
+      else {
+        if (document.exitFullscreen) document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    }
+
+    // --- 3. SLOWED PLAYBACK ENGINE (Default: 0.85x Slow & Dreamy) ---
+    const audio = document.getElementById('audio-player');
+    let playbackSpeed = 0.85;
+
+    function applyAudioSpeed() {
+      audio.playbackRate = playbackSpeed;
+      if ('preservesPitch' in audio) audio.preservesPitch = false;
+      else if ('mozPreservesPitch' in audio) audio.mozPreservesPitch = false;
+      else if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
+    }
+
+    function cycleSpeed() {
+      if (playbackSpeed === 0.85) playbackSpeed = 0.78;
+      else if (playbackSpeed === 0.78) playbackSpeed = 1.0;
+      else playbackSpeed = 0.85;
+
+      applyAudioSpeed();
+      const label = playbackSpeed === 1.0 ? "1.0x (NORMAL)" : `${playbackSpeed}x (SLOWED)`;
+      document.getElementById('speed-btn').textContent = `🐢 SPEED: ${label}`;
+    }
+
+    // --- 4. CAMERA & 3-STAGE WATERCOLOR REVEAL ENGINE ---
+    const world = document.getElementById('world');
+    let currentCamX = 860;
+    let targetCamX = 860;
+    const baseDriftSpeed = 22;
+    let activeTimers = [];
+
+    function scheduleTimeout(fn, delay) {
+      const id = setTimeout(fn, delay / playbackSpeed);
+      activeTimers.push(id);
+      return id;
+    }
+
+    function clearAllTimers() {
+      activeTimers.forEach(id => clearTimeout(id));
+      activeTimers = [];
+    }
+
+    function panCameraTo(x) {
+      targetCamX = x;
+    }
+
+    function revealWatercolor(id) {
+      const box = document.getElementById(id);
+      if (!box) return;
+      box.classList.add('step-sketch');
+      scheduleTimeout(() => box.classList.add('step-wash'), 480);
+      scheduleTimeout(() => box.classList.add('step-paint'), 1000);
+    }
+
+    // --- 5. TYPEWRITER LYRICS ---
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+
+    function typeText(elId, text, speed = 85, append = false) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      if (!append) el.textContent = '';
+      let i = 0;
+      function step() {
+        if (i < text.length) {
+          el.textContent += text.charAt(i);
+          el.appendChild(cursor);
+          i++;
+          scheduleTimeout(step, speed);
+        }
+      }
+      step();
+    }
+
+    // --- 6. HUMDARD SONG TIMELINE CUES ---
+    const cues = [
+      // Scene 1: 00:00 - 00:10
+      { songTime: 0.2, run: () => revealWatercolor('art-1') },
+      { songTime: 0.5, run: () => typeText('lyric-1', "TERI MUSKURAAHATEIN HAIN\n", 75) },
+      { songTime: 3.0, run: () => typeText('lyric-1', "TAAKAT MERI\n", 80, true) },
+      { songTime: 5.5, run: () => typeText('lyric-1', "MUJHKO INHEE SE\n", 75, true) },
+      { songTime: 8.0, run: () => typeText('lyric-1', "UMMID MILEE", 85, true) },
+
+      // Scene 2: 00:10.5 - 00:20.5
+      { songTime: 10.5, run: () => panCameraTo(1920) },
+      { songTime: 10.8, run: () => typeText('lyric-2a', "CHAHE KARE KOI\n", 75) },
+      { songTime: 12.2, run: () => revealWatercolor('art-2') },
+      { songTime: 13.0, run: () => typeText('lyric-2a', "SITAM YEH JAHAN..", 80, true) },
+      { songTime: 16.0, run: () => typeText('lyric-2b', "INMEIN HI HAI SADA\n", 75) },
+      { songTime: 18.2, run: () => typeText('lyric-2b', "HIFAZAT MERI", 85, true) },
+
+      // Scene 3: 00:20.8 - 00:31.5
+      { songTime: 20.8, run: () => panCameraTo(3080) },
+      { songTime: 21.2, run: () => typeText('lyric-3', "ZINDGHANI BADI\n", 75) },
+      { songTime: 22.8, run: () => revealWatercolor('art-3') },
+      { songTime: 23.6, run: () => typeText('lyric-3', "KHOOBSURAT HUYI\n", 80, true) },
+      { songTime: 26.5, run: () => typeText('lyric-3', "JANNAT AB AUR\n", 75, true) },
+      { songTime: 28.8, run: () => typeText('lyric-3', "KYA HOGI KAHIN", 85, true) },
+
+      // Scene 4: 00:31.8 - 00:41.5
+      { songTime: 31.8, run: () => panCameraTo(4220) },
+      { songTime: 32.2, run: () => revealWatercolor('art-4') },
+      { songTime: 32.5, run: () => typeText('lyric-4a', "JO TU MERA\nHUMDARD HAI\n\n", 85) },
+      { songTime: 37.0, run: () => typeText('lyric-4a', "JO TU MERA\nHUMDARD HAI", 85, true) },
+
+      // Scene 5: 00:42.0 - End
+      { songTime: 41.8, run: () => { panCameraTo(5360); revealWatercolor('art-5'); } },
+      { songTime: 42.5, run: () => typeText('lyric-5', "SUHANA HAR\nDARD HAI...\n\n", 85) },
+      { songTime: 47.0, run: () => typeText('lyric-5', "JO TU MERA\nHUMDARD HAI ♥", 90, true) },
+
+      // End Screen Trigger
+      { songTime: 53.0, run: () => showEndScreen() }
+    ];
+
+    let virtualSongTime = 0;
+    let lastFrameTime = null;
+    let isRunning = false;
+
+    audio.addEventListener('ended', showEndScreen);
+
+    // Direct synchronous audio play on button click so Mobile & Desktop browsers never block autoplay
+    function startExperience() {
+      // 1. Play audio immediately inside user click gesture
+      audio.volume = 1.0;
+      audio.currentTime = 0;
+      applyAudioSpeed();
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(err => console.warn("Audio check res/song.mp3 or res/song.mp4:", err));
+      }
+
+      // 2. Trigger Fullscreen & Landscape
+      requestFullScreenAndLock();
+
+      // 3. Hide Start Overlay & Show Controls
+      document.getElementById('start-overlay').classList.add('hidden');
+      document.getElementById('top-controls').classList.add('visible');
+
+      virtualSongTime = 0;
+      lastFrameTime = performance.now();
+      isRunning = true;
+    }
+
+    function showEndScreen() {
+      if (!isRunning) return;
+      isRunning = false;
+      document.getElementById('end-overlay').classList.remove('hidden');
+    }
+
+    function replayExperience() {
+      clearAllTimers();
+      document.getElementById('end-overlay').classList.add('hidden');
+
+      currentCamX = 860;
+      targetCamX = 860;
+      world.style.transform = `translate3d(${1920 / 2 - currentCamX}px, 0, 0)`;
+
+      document.querySelectorAll('.lyric-block').forEach(el => el.textContent = '');
+
+      ['art-1', 'art-2', 'art-3', 'art-4', 'art-5'].forEach(id => {
+        const box = document.getElementById(id);
+        if (box) box.classList.remove('step-sketch', 'step-wash', 'step-paint');
+      });
+
+      cues.forEach(c => c.done = false);
+
+      virtualSongTime = 0;
+      audio.currentTime = 0;
+      applyAudioSpeed();
+      audio.play().catch(() => {});
+
+      requestFullScreenAndLock();
+      lastFrameTime = performance.now();
+      isRunning = true;
+    }
+
+    // Master 60/120FPS Loop
+    function masterLoop(now) {
+      if (isRunning) {
+        const realDt = Math.min((now - lastFrameTime) / 1000, 0.1);
+        lastFrameTime = now;
+
+        if (!audio.paused && audio.duration > 0) {
+          virtualSongTime = audio.currentTime;
+        } else {
+          virtualSongTime += realDt * playbackSpeed;
+        }
+
+        cues.forEach(c => {
+          if (!c.done && virtualSongTime >= c.songTime) {
+            c.done = true;
+            c.run();
+          }
+        });
+
+        targetCamX += (baseDriftSpeed * playbackSpeed) * realDt;
+        const smoothingFactor = 1 - Math.pow(0.18, realDt);
+        currentCamX += (targetCamX - currentCamX) * smoothingFactor;
+
+        world.style.transform = `translate3d(${1920 / 2 - currentCamX}px, 0, 0)`;
+      }
+      requestAnimationFrame(masterLoop);
+    }
+    requestAnimationFrame(masterLoop);
+
+    // --- 7. FLOATING HEARTS, SPARKLES & AUTUMN LEAVES ---
+    const canvas = document.getElementById('particles-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const colors = ['#d96b43', '#e88d67', '#e0533c', '#f2a65a', '#c94a38'];
+    const types = ['heart', 'sparkle', 'leaf', 'dot'];
+
+    const particles = Array.from({ length: 30 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      type: types[Math.floor(Math.random() * types.length)],
+      size: 6 + Math.random() * 6,
+      speedY: 0.25 + Math.random() * 0.45,
+      speedX: -0.2 + Math.random() * 0.4,
+      swayAmp: 0.3 + Math.random() * 0.5,
+      swaySpeed: 0.01 + Math.random() * 0.016,
+      angle: Math.random() * Math.PI * 2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 0.45 + Math.random() * 0.45
+    }));
+
+    function drawHeart(ctx, size) {
+      ctx.beginPath();
+      const topCurveHeight = size * 0.3;
+      ctx.moveTo(0, topCurveHeight);
+      ctx.bezierCurveTo(0, 0, -size / 2, 0, -size / 2, topCurveHeight);
+      ctx.bezierCurveTo(-size / 2, (size + topCurveHeight) / 2, 0, (size + topCurveHeight) / 1.4, 0, size);
+      ctx.bezierCurveTo(0, (size + topCurveHeight) / 1.4, size / 2, (size + topCurveHeight) / 2, size / 2, topCurveHeight);
+      ctx.bezierCurveTo(size / 2, 0, 0, 0, 0, topCurveHeight);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawSparkle(ctx, size) {
+      ctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        ctx.lineTo(Math.cos((i * Math.PI) / 2) * size, Math.sin((i * Math.PI) / 2) * size);
+        ctx.lineTo(Math.cos(((i + 0.5) * Math.PI) / 2) * (size * 0.3), Math.sin(((i + 0.5) * Math.PI) / 2) * (size * 0.3));
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawLeaf(ctx, size) {
+      ctx.beginPath();
+      ctx.moveTo(0, -size);
+      ctx.quadraticCurveTo(size * 0.8, 0, 0, size);
+      ctx.quadraticCurveTo(-size * 0.8, 0, 0, -size);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function renderParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        p.y += p.speedY;
+        p.angle += p.swaySpeed;
+        p.x += p.speedX + Math.sin(p.angle) * p.swayAmp;
+
+        if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
+        if (p.x > canvas.width + 20) p.x = -20;
+        if (p.x < -20) p.x = canvas.width + 20;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle * 0.5);
+        ctx.globalAlpha = p.alpha * (0.7 + 0.3 * Math.sin(p.angle * 2));
+        ctx.fillStyle = p.color;
+
+        if (p.type === 'heart') drawHeart(ctx, p.size);
+        else if (p.type === 'sparkle') drawSparkle(ctx, p.size * 0.9);
+        else if (p.type === 'leaf') drawLeaf(ctx, p.size * 0.8);
+        else {
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size * 0.3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+      requestAnimationFrame(renderParticles);
+    }
+    renderParticles();
+  </script>
+</body>
+</html>
