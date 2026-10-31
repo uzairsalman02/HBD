@@ -106,7 +106,6 @@
       margin-top: 10px; letter-spacing: 2px; font-weight: 700;
     }
 
-    /* Play Button (Hidden until loading completes!) */
     #play-btn {
       display: none;
       margin-top: 24px;
@@ -128,7 +127,7 @@
     }
     #play-btn:active { transform: scale(0.95); }
 
-    /* TINY MINIMAL FULLSCREEN ICON BUTTON (Top Right) */
+    /* TINY MINIMAL FULLSCREEN BUTTON */
     #fs-btn {
       position: fixed; top: 12px; right: 12px; z-index: 90;
       width: 34px; height: 34px;
@@ -177,7 +176,6 @@
       50% { opacity: 1; transform: scale(1.04); }
     }
 
-    /* Hidden Birthday Message (Reveals after Gift Blast) */
     #bday-message-wrap {
       display: none;
       flex-direction: column;
@@ -206,7 +204,6 @@
       margin-top: 8px;
       letter-spacing: 3px;
     }
-    /* Small Subtle Replay Button */
     .small-replay-btn {
       margin-top: 28px;
       padding: 6px 22px;
@@ -226,7 +223,7 @@
       background: #fff; transform: scale(1.05);
     }
 
-    /* 4. FLOATING PARTICLES & BLAST CANVAS */
+    /* 4. FLOATING PARTICLES CANVAS */
     #particles-canvas {
       position: fixed; inset: 0;
       pointer-events: none; z-index: 170;
@@ -255,14 +252,13 @@
       transform: translate(-50%, -50%);
     }
 
-    /* 6. ORGANIC PAINT-SPLASH FRAMES (No Squares or Rectangles!) */
+    /* 6. LARGER PAINT-SPLASH FRAMES WITH PROPER SPACING */
     .watercolor-art {
       position: relative;
-      width: 580px; height: 430px;
-      filter: drop-shadow(0 8px 20px rgba(90, 65, 45, 0.08));
+      width: 660px; height: 490px;
+      filter: drop-shadow(0 10px 24px rgba(90, 65, 45, 0.1));
     }
 
-    /* Each scene gets a unique organic paint-splash SVG mask */
     .splash-shape-0 { -webkit-mask: url(#splash-0); mask: url(#splash-0); }
     .splash-shape-1 { -webkit-mask: url(#splash-1); mask: url(#splash-1); }
     .splash-shape-2 { -webkit-mask: url(#splash-2); mask: url(#splash-2); }
@@ -277,23 +273,18 @@
       will-change: clip-path, opacity, transform;
     }
 
-    /* Stage 1: Pencil Sketch Outline */
     .layer-sketch {
       filter: grayscale(100%) contrast(240%) brightness(1.12);
       opacity: 0;
       transform: scale(0.94);
       transition: opacity 1s ease, transform 2.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
-
-    /* Stage 2: Light Watercolor Wash */
     .layer-wash {
       filter: saturate(0.6) brightness(1.1) contrast(1.05);
       opacity: 0;
       clip-path: circle(0% at 50% 50%);
       transition: clip-path 2.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.9s ease;
     }
-
-    /* Stage 3: Full Rich Watercolor Paint */
     .layer-paint {
       filter: saturate(1.25) contrast(1.06);
       opacity: 0;
@@ -314,13 +305,13 @@
       clip-path: circle(100% at 50% 50%);
     }
 
-    /* Handwritten Lyrics Styling */
+    /* Handwritten Lyrics Styling (Completely separated from images to avoid overlap) */
     .lyric-block {
       position: absolute;
-      font-size: 3.25rem;
+      font-size: 3.35rem;
       font-weight: 700;
       line-height: 1.25;
-      letter-spacing: 3px;
+      letter-spacing: 3.5px;
       color: #463c33;
       white-space: pre-line;
       text-transform: uppercase;
@@ -339,14 +330,13 @@
 </head>
 <body>
 
-  <!-- 6 UNIQUE ORGANIC WATERCOLOR PAINT-SPLASH MASKS (No Squares/Rectangles!) -->
+  <!-- UNIQUE ORGANIC WATERCOLOR PAINT-SPLASH MASKS -->
   <svg width="0" height="0" style="position:absolute;">
     <defs>
       <filter id="soft-feather" x="-10%" y="-10%" width="120%" height="120%">
         <feGaussianBlur stdDeviation="0.025" />
       </filter>
 
-      <!-- Splash Shape 0: Organic Autumn Blob with Splatters -->
       <mask id="splash-0" maskContentUnits="objectBoundingBox">
         <g filter="url(#soft-feather)" fill="white">
           <path d="M0.14,0.22 C0.28,0.04 0.72,0.03 0.86,0.20 C0.98,0.36 0.96,0.74 0.82,0.88 C0.65,0.99 0.25,0.97 0.12,0.82 C0.01,0.66 0.02,0.38 0.14,0.22 Z"/>
@@ -355,17 +345,14 @@
         </g>
       </mask>
 
-      <!-- Splash Shape 1: Diagonal Brush Sweep Splash -->
       <mask id="splash-1" maskContentUnits="objectBoundingBox">
         <g filter="url(#soft-feather)" fill="white">
           <path d="M0.09,0.32 C0.20,0.07 0.62,0.02 0.84,0.16 C0.99,0.28 0.95,0.68 0.85,0.85 C0.70,0.99 0.32,0.98 0.14,0.84 C0.02,0.70 -0.01,0.52 0.09,0.32 Z"/>
           <circle cx="0.15" cy="0.10" r="0.03"/><circle cx="0.93" cy="0.28" r="0.035"/>
           <circle cx="0.82" cy="0.92" r="0.028"/><circle cx="0.06" cy="0.75" r="0.032"/>
-          <circle cx="0.95" cy="0.58" r="0.02"/>
         </g>
       </mask>
 
-      <!-- Splash Shape 2: Cloud-Like Watercolor Puddle -->
       <mask id="splash-2" maskContentUnits="objectBoundingBox">
         <g filter="url(#soft-feather)" fill="white">
           <path d="M0.18,0.15 C0.38,0.02 0.58,0.08 0.78,0.12 C0.94,0.18 0.98,0.48 0.90,0.74 C0.82,0.94 0.52,0.98 0.24,0.91 C0.06,0.84 0.02,0.58 0.07,0.35 C0.10,0.22 0.12,0.19 0.18,0.15 Z"/>
@@ -374,7 +361,6 @@
         </g>
       </mask>
 
-      <!-- Splash Shape 3: Wide Artistic Paint Blot -->
       <mask id="splash-3" maskContentUnits="objectBoundingBox">
         <g filter="url(#soft-feather)" fill="white">
           <path d="M0.12,0.26 C0.24,0.05 0.76,0.04 0.88,0.24 C0.99,0.42 0.94,0.78 0.78,0.90 C0.58,1.01 0.28,0.95 0.11,0.80 C-0.01,0.65 0.02,0.44 0.12,0.26 Z"/>
@@ -383,7 +369,6 @@
         </g>
       </mask>
 
-      <!-- Splash Shape 4: Tilted Petal Watercolor Wash -->
       <mask id="splash-4" maskContentUnits="objectBoundingBox">
         <g filter="url(#soft-feather)" fill="white">
           <path d="M0.22,0.10 C0.48,0.01 0.82,0.09 0.91,0.32 C0.99,0.54 0.89,0.86 0.68,0.94 C0.44,1.01 0.14,0.90 0.06,0.68 C-0.02,0.46 0.05,0.20 0.22,0.10 Z"/>
@@ -392,7 +377,6 @@
         </g>
       </mask>
 
-      <!-- Splash Shape 5: Romantic Soft Heart-Infused Splash -->
       <mask id="splash-5" maskContentUnits="objectBoundingBox">
         <g filter="url(#soft-feather)" fill="white">
           <path d="M0.15,0.20 C0.32,0.03 0.68,0.03 0.85,0.20 C0.98,0.35 0.96,0.70 0.80,0.87 C0.64,0.99 0.36,0.99 0.20,0.87 C0.04,0.70 0.02,0.35 0.15,0.20 Z"/>
@@ -410,7 +394,7 @@
     <p>Video jaisa full experience dekhne ke liye phone ko Landscape karein ♥</p>
   </div>
 
-  <!-- Start Screen (Play Button appears ONLY when loading finishes!) -->
+  <!-- Start Screen -->
   <div id="start-overlay" class="modal-overlay">
     <h1>HUMDARD ♥</h1>
     <p>A Special Watercolor Lyric Experience</p>
@@ -425,96 +409,84 @@
     <button id="play-btn" onclick="startExperience()">▶ TAP TO PLAY</button>
   </div>
 
-  <!-- End Screen: Interactive Gift Box -> Blast -> Happy Birthday My Life Partner -->
+  <!-- End Screen -->
   <div id="end-overlay" class="modal-overlay hidden">
-    
-    <!-- Step 1: Clickable Wobbling Gift Box -->
     <div id="gift-stage" onclick="openGiftBox()">
       <svg class="gift-box-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- Ribbon Loops -->
         <path d="M60 32C60 32 42 10 30 22C18 34 45 42 60 32Z" fill="#e0533c" stroke="#3d352e" stroke-width="3"/>
         <path d="M60 32C60 32 78 10 90 22C102 34 75 42 60 32Z" fill="#e0533c" stroke="#3d352e" stroke-width="3"/>
-        <!-- Box Base -->
         <rect x="20" y="48" width="80" height="58" rx="6" fill="#f2a65a" stroke="#3d352e" stroke-width="3"/>
-        <!-- Box Lid -->
         <rect x="14" y="32" width="92" height="18" rx="5" fill="#d96b43" stroke="#3d352e" stroke-width="3"/>
-        <!-- Vertical & Horizontal Ribbons -->
         <rect x="53" y="32" width="14" height="74" fill="#e0533c" stroke="#3d352e" stroke-width="3"/>
         <rect x="20" y="70" width="80" height="12" fill="#e0533c" stroke="#3d352e" stroke-width="3"/>
       </svg>
       <div class="tap-gift-hint">🎁 TAP TO OPEN YOUR GIFT ♥</div>
     </div>
 
-    <!-- Step 2: Birthday Reveal after Blast -->
     <div id="bday-message-wrap">
       <div class="bday-title">HAPPY BIRTHDAY<br>MY LIFE PARTNER ♥</div>
       <div class="bday-sub">Zindagani badi khoobsurat huyi... Jo tu mera Humdard hai ✨</div>
       <button class="small-replay-btn" onclick="replayExperience()">↻ Replay Experience</button>
     </div>
-
   </div>
 
-  <!-- Tiny Unobtrusive Fullscreen Icon Button (Top Right) -->
   <button id="fs-btn" onclick="toggleFullScreen()" title="Fullscreen">⛶</button>
-
   <canvas id="particles-canvas"></canvas>
 
-  <!-- Audio Player -->
   <audio id="audio-player" preload="auto" playsinline crossorigin="anonymous">
     <source src="./res/song.mp3" type="audio/mpeg">
     <source src="https://raw.githubusercontent.com/uzairsalman02/HBD/main/res/song.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Virtual 1920x1080 Stage with Unique Splash Shapes -->
+  <!-- VIRTUAL STAGE WITH LARGER IMAGES & SAFE SPACING FOR LYRICS -->
   <div id="viewport">
     <div id="stage-scaler">
       <div id="world">
 
         <!-- Intro Image: 0.jpg -->
-        <div class="scene-item" style="left: 460px; top: 690px;">
-          <div class="watercolor-art splash-shape-0 step-sketch step-wash step-paint" style="width: 470px; height: 350px;" data-file="0.jpg"></div>
+        <div class="scene-item" style="left: 480px; top: 680px;">
+          <div class="watercolor-art splash-shape-0 step-sketch step-wash step-paint" data-file="0.jpg"></div>
         </div>
 
-        <!-- SCENE 1: 1.jpg -->
-        <div class="scene-item" style="left: 1080px; top: 360px;">
+        <!-- SCENE 1 (Image left, Lyrics right) -->
+        <div class="scene-item" style="left: 1120px; top: 480px;">
           <div class="watercolor-art splash-shape-1" id="art-1" data-file="1.jpg"></div>
         </div>
-        <div class="lyric-block" id="lyric-1" style="left: 840px; top: 610px;"></div>
+        <div class="lyric-block" id="lyric-1" style="left: 880px; top: 160px;"></div>
 
-        <!-- SCENE 2: 2.jpg -->
-        <div class="lyric-block" id="lyric-2a" style="left: 1840px; top: 250px;"></div>
-        <div class="lyric-block" id="lyric-2b" style="left: 2240px; top: 250px;"></div>
-        <div class="scene-item" style="left: 2120px; top: 720px;">
+        <!-- SCENE 2 (Lyrics top-left, Image bottom-right) -->
+        <div class="lyric-block" id="lyric-2a" style="left: 1800px; top: 140px;"></div>
+        <div class="lyric-block" id="lyric-2b" style="left: 2180px; top: 140px;"></div>
+        <div class="scene-item" style="left: 2140px; top: 680px;">
           <div class="watercolor-art splash-shape-2" id="art-2" data-file="2.jpg"></div>
         </div>
 
-        <!-- SCENE 3: 3.JPG -->
-        <div class="scene-item" style="left: 3300px; top: 380px;">
+        <!-- SCENE 3 (Image left, Lyrics right) -->
+        <div class="scene-item" style="left: 3240px; top: 500px;">
           <div class="watercolor-art splash-shape-3" id="art-3" data-file="3.JPG"></div>
         </div>
-        <div class="lyric-block" id="lyric-3" style="left: 3060px; top: 640px;"></div>
+        <div class="lyric-block" id="lyric-3" style="left: 3020px; top: 150px;"></div>
 
-        <!-- SCENE 4: 4.JPG -->
-        <div class="lyric-block" id="lyric-4a" style="left: 4220px; top: 260px;"></div>
-        <div class="scene-item" style="left: 4450px; top: 710px;">
+        <!-- SCENE 4 (Lyrics top, Image bottom) -->
+        <div class="lyric-block" id="lyric-4a" style="left: 4160px; top: 130px;"></div>
+        <div class="scene-item" style="left: 4420px; top: 690px;">
           <div class="watercolor-art splash-shape-4" id="art-4" data-file="4.JPG"></div>
         </div>
 
-        <!-- SCENE 5: 5.jpg -->
-        <div class="scene-item" style="left: 5620px; top: 390px;">
+        <!-- SCENE 5 (Image left, Lyrics right) -->
+        <div class="scene-item" style="left: 5560px; top: 500px;">
           <div class="watercolor-art splash-shape-5" id="art-5" data-file="5.jpg"></div>
         </div>
-        <div class="lyric-block" id="lyric-5" style="left: 5400px; top: 650px;"></div>
+        <div class="lyric-block" id="lyric-5" style="left: 5350px; top: 160px;"></div>
 
       </div>
     </div>
   </div>
 
   <script>
-    // --- 0. FAST PRIORITY PRELOADER (Unlocks Play button as soon as first 2 images are ready!) ---
     const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/uzairsalman02/HBD/main/res/";
     const boxes = Array.from(document.querySelectorAll('.watercolor-art'));
-    const priorityCount = 2; // Unlock Play button once 0.jpg & 1.jpg load; stream 2..5 in background!
+    const priorityCount = 2;
     let priorityLoaded = 0;
     let playUnlocked = false;
 
@@ -576,16 +548,13 @@
       masterImg.src = fallbacks[0];
     }
 
-    // Load first 2 images immediately, then load remaining 4 right after
     boxes.slice(0, priorityCount).forEach((box, i) => loadBoxImage(box, i));
     setTimeout(() => {
       boxes.slice(priorityCount).forEach((box, i) => loadBoxImage(box, i + priorityCount));
     }, 100);
 
-    // Fallback: Show play button after 4.5s max even on slow internet
     setTimeout(unlockPlayButton, 4500);
 
-    // --- 1. DESKTOP SCALER FOR MOBILE ---
     const stageScaler = document.getElementById('stage-scaler');
     function updateStageScale() {
       const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
@@ -595,7 +564,6 @@
     window.addEventListener('orientationchange', () => setTimeout(updateStageScale, 200));
     updateStageScale();
 
-    // --- 2. FULLSCREEN & LANDSCAPE LOCK ---
     function requestFullScreenAndLock() {
       const docEl = document.documentElement;
       try {
@@ -618,7 +586,6 @@
       }
     }
 
-    // --- 3. SLOWED PLAYBACK ENGINE (Fixed at 0.85x Slow & Dreamy) ---
     const audio = document.getElementById('audio-player');
     const playbackSpeed = 0.85;
 
@@ -629,7 +596,6 @@
       else if ('webkitPreservesPitch' in audio) audio.webkitPreservesPitch = false;
     }
 
-    // --- 4. CAMERA & 3-STAGE WATERCOLOR REVEAL ENGINE ---
     const world = document.getElementById('world');
     let currentCamX = 860;
     let targetCamX = 860;
@@ -659,7 +625,6 @@
       scheduleTimeout(() => box.classList.add('step-paint'), 1000);
     }
 
-    // --- 5. TYPEWRITER LYRICS ---
     const cursor = document.createElement('span');
     cursor.className = 'cursor';
 
@@ -679,16 +644,13 @@
       step();
     }
 
-    // --- 6. HUMDARD SONG TIMELINE CUES ---
     const cues = [
-      // Scene 1: 00:00 - 00:10
       { songTime: 0.2, run: () => revealWatercolor('art-1') },
       { songTime: 0.5, run: () => typeText('lyric-1', "TERI MUSKURAAHATEIN HAIN\n", 75) },
       { songTime: 3.0, run: () => typeText('lyric-1', "TAAKAT MERI\n", 80, true) },
       { songTime: 5.5, run: () => typeText('lyric-1', "MUJHKO INHEE SE\n", 75, true) },
       { songTime: 8.0, run: () => typeText('lyric-1', "UMMID MILEE", 85, true) },
 
-      // Scene 2: 00:10.5 - 00:20.5
       { songTime: 10.5, run: () => panCameraTo(1920) },
       { songTime: 10.8, run: () => typeText('lyric-2a', "CHAHE KARE KOI\n", 75) },
       { songTime: 12.2, run: () => revealWatercolor('art-2') },
@@ -696,7 +658,6 @@
       { songTime: 16.0, run: () => typeText('lyric-2b', "INMEIN HI HAI SADA\n", 75) },
       { songTime: 18.2, run: () => typeText('lyric-2b', "HIFAZAT MERI", 85, true) },
 
-      // Scene 3: 00:20.8 - 00:31.5
       { songTime: 20.8, run: () => panCameraTo(3080) },
       { songTime: 21.2, run: () => typeText('lyric-3', "ZINDGHANI BADI\n", 75) },
       { songTime: 22.8, run: () => revealWatercolor('art-3') },
@@ -704,18 +665,15 @@
       { songTime: 26.5, run: () => typeText('lyric-3', "JANNAT AB AUR\n", 75, true) },
       { songTime: 28.8, run: () => typeText('lyric-3', "KYA HOGI KAHIN", 85, true) },
 
-      // Scene 4: 00:31.8 - 00:41.5
       { songTime: 31.8, run: () => panCameraTo(4220) },
       { songTime: 32.2, run: () => revealWatercolor('art-4') },
       { songTime: 32.5, run: () => typeText('lyric-4a', "JO TU MERA\nHUMDARD HAI\n\n", 85) },
       { songTime: 37.0, run: () => typeText('lyric-4a', "JO TU MERA\nHUMDARD HAI", 85, true) },
 
-      // Scene 5: 00:42.0 - End
       { songTime: 41.8, run: () => { panCameraTo(5360); revealWatercolor('art-5'); } },
       { songTime: 42.5, run: () => typeText('lyric-5', "SUHANA HAR\nDARD HAI...\n\n", 85) },
       { songTime: 47.0, run: () => typeText('lyric-5', "JO TU MERA\nHUMDARD HAI ♥", 90, true) },
 
-      // End Screen Trigger
       { songTime: 53.0, run: () => showEndScreen() }
     ];
 
@@ -744,22 +702,18 @@
     function showEndScreen() {
       if (!isRunning) return;
       isRunning = false;
-      // Show Gift Box first, hide birthday text until clicked
       document.getElementById('gift-stage').style.display = 'flex';
       document.getElementById('bday-message-wrap').classList.remove('show');
       document.getElementById('end-overlay').classList.remove('hidden');
     }
 
-    // --- GIFT BOX BLAST & HEART SHOWER TRIGGER ---
     let burstParticles = [];
     let heartRainMode = false;
 
     function openGiftBox() {
-      // Hide gift box and reveal "HAPPY BIRTHDAY MY LIFE PARTNER"
       document.getElementById('gift-stage').style.display = 'none';
       document.getElementById('bday-message-wrap').classList.add('show');
 
-      // Trigger explosive heart & confetti blast from center of screen
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
       const blastColors = ['#e0533c', '#d96b43', '#ff4d6d', '#ffb703', '#f2a65a', '#c9184a'];
@@ -783,7 +737,6 @@
         });
       }
 
-      // Turn on continuous romantic falling hearts shower from top!
       heartRainMode = true;
       particles.forEach(p => {
         p.type = 'heart';
@@ -799,7 +752,6 @@
       heartRainMode = false;
       burstParticles = [];
 
-      // Restore ambient particles
       particles.forEach(p => {
         p.type = types[Math.floor(Math.random() * types.length)];
         p.size = 6 + Math.random() * 6;
@@ -831,7 +783,6 @@
       isRunning = true;
     }
 
-    // Master 60/120FPS Loop
     function masterLoop(now) {
       if (isRunning) {
         const realDt = Math.min((now - lastFrameTime) / 1000, 0.1);
@@ -860,7 +811,6 @@
     }
     requestAnimationFrame(masterLoop);
 
-    // --- 7. FLOATING HEARTS, SPARKLES & BLAST PARTICLE ENGINE ---
     const canvas = document.getElementById('particles-canvas');
     const ctx = canvas.getContext('2d');
 
@@ -922,7 +872,6 @@
     function renderParticles() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // 1. Render Ambient & Heart-Shower Particles
       particles.forEach(p => {
         p.y += p.speedY;
         p.angle += p.swaySpeed;
@@ -949,7 +898,6 @@
         ctx.restore();
       });
 
-      // 2. Render Gift Box Blast Explosion Particles
       for (let i = burstParticles.length - 1; i >= 0; i--) {
         const b = burstParticles[i];
         b.x += b.vx;
