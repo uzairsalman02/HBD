@@ -152,20 +152,20 @@
       position: relative;
       width: 560px; height: 390px;
       filter: url(#torn-brush-edges);
-      mix-blend-mode: multiply;
     }
 
     .watercolor-art .layer {
       position: absolute; inset: 0;
       width: 100%; height: 100%;
       object-fit: cover;
-      -webkit-mask-image: radial-gradient(ellipse 76% 72% at 50% 50%, #000 48%, rgba(0,0,0,0.6) 68%, transparent 92%);
-      mask-image: radial-gradient(ellipse 76% 72% at 50% 50%, #000 48%, rgba(0,0,0,0.6) 68%, transparent 92%);
+      border-radius: 18px;
+      -webkit-mask-image: radial-gradient(ellipse 78% 74% at 50% 50%, #000 52%, rgba(0,0,0,0.65) 72%, transparent 95%);
+      mask-image: radial-gradient(ellipse 78% 74% at 50% 50%, #000 52%, rgba(0,0,0,0.65) 72%, transparent 95%);
     }
 
     /* Stage 1: Raw Ink & Pencil Sketch Outline */
     .layer-sketch {
-      filter: url(#ink-sketch-lines);
+      filter: grayscale(100%) contrast(260%) brightness(1.15);
       opacity: 0;
       transform: scale(0.95);
       transition: opacity 1.1s ease, transform 2.6s cubic-bezier(0.22, 1, 0.36, 1);
@@ -173,7 +173,7 @@
 
     /* Stage 2: Light Watercolor Wash */
     .layer-wash {
-      filter: url(#watercolor-paper-bleed) saturate(0.6) brightness(1.15);
+      filter: saturate(0.65) brightness(1.12);
       opacity: 0;
       clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
       transition: clip-path 2.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.9s ease;
@@ -181,7 +181,7 @@
 
     /* Stage 3: Full Rich Watercolor Paint */
     .layer-paint {
-      filter: url(#watercolor-paper-bleed) saturate(1.35) contrast(1.08);
+      filter: saturate(1.3) contrast(1.06);
       opacity: 0;
       clip-path: polygon(
         50% 50%, 50% 50%, 50% 50%, 50% 50%, 
@@ -195,7 +195,7 @@
       transform: scale(1);
     }
     .watercolor-art.step-wash .layer-wash {
-      opacity: 0.75;
+      opacity: 0.78;
       clip-path: polygon(-10% 10%, 90% -10%, 110% 85%, 5% 110%);
     }
     .watercolor-art.step-paint .layer-paint {
@@ -251,33 +251,12 @@
 </head>
 <body>
 
-  <!-- SVG Filters for Torn Brush Edges, Sketch Outlines & Watercolor Bleed -->
+  <!-- SVG Filter for Torn Watercolor Brush Edges -->
   <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
     <defs>
-      <filter id="torn-brush-edges" x="-20%" y="-20%" width="140%" height="140%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="4" seed="7" result="roughNoise" />
-        <feDisplacementMap in="SourceGraphic" in2="roughNoise" scale="38" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-
-      <filter id="ink-sketch-lines">
-        <feColorMatrix type="matrix" values="
-          0.33 0.33 0.33 0 0
-          0.33 0.33 0.33 0 0
-          0.33 0.33 0.33 0 0
-          0    0    0    1 0" result="gray" />
-        <feComponentTransfer in="gray" result="highContrast">
-          <feFuncR type="linear" slope="3.2" intercept="-0.9" />
-          <feFuncG type="linear" slope="3.2" intercept="-0.9" />
-          <feFuncB type="linear" slope="3.2" intercept="-0.9" />
-        </feComponentTransfer>
-        <feTurbulence type="fractalNoise" baseFrequency="0.08" numOctaves="3" result="sketchGrain" />
-        <feDisplacementMap in="highContrast" in2="sketchGrain" scale="4.5" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-
-      <filter id="watercolor-paper-bleed">
-        <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" seed="3" result="waterNoise" />
-        <feDisplacementMap in="SourceGraphic" in2="waterNoise" scale="11" xChannelSelector="R" yChannelSelector="G" result="wetPaint" />
-        <feGaussianBlur in="wetPaint" stdDeviation="0.45" />
+      <filter id="torn-brush-edges" x="-15%" y="-15%" width="130%" height="130%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="7" result="roughNoise" />
+        <feDisplacementMap in="SourceGraphic" in2="roughNoise" scale="28" xChannelSelector="R" yChannelSelector="G" />
       </filter>
     </defs>
   </svg>
@@ -311,51 +290,47 @@
 
   <canvas id="particles-canvas"></canvas>
 
-  <!-- Audio/Video Player: Automatically picks song from "res/" folder -->
-  <audio id="audio-player" preload="auto" playsinline>
-    <source src="res/song.mp3" type="audio/mpeg">
-    <source src="res/song.mp4" type="video/mp4">
-    <source src="res/song.wav" type="audio/wav">
-  </audio>
+  <!-- Exact Audio Path from your GitHub repo: res/song.mp3 -->
+  <audio id="audio-player" src="res/song.mp3" preload="auto" playsinline></audio>
 
-  <!-- Virtual 1920x1080 Stage (All images load from "res/" folder) -->
+  <!-- Virtual 1920x1080 Stage (Exact filenames matched to your GitHub res/ folder!) -->
   <div id="viewport">
     <div id="stage-scaler">
       <div id="world">
 
-        <!-- Intro Left Image (res/intro.jpg or .png) -->
+        <!-- Intro Image: res/0.jpg -->
         <div class="scene-item" style="left: 460px; top: 690px;">
-          <div class="watercolor-art step-sketch step-wash step-paint" style="width: 450px; height: 330px;" data-img="res/intro"></div>
+          <div class="watercolor-art step-sketch step-wash step-paint" style="width: 450px; height: 330px;" data-img="res/0.jpg"></div>
         </div>
 
-        <!-- SCENE 1: res/1.jpg or .png -->
+        <!-- SCENE 1: res/1.jpg -->
         <div class="scene-item" style="left: 1080px; top: 360px;">
-          <div class="watercolor-art" id="art-1" data-img="res/1"></div>
+          <div class="watercolor-art" id="art-1" data-img="res/1.jpg"></div>
         </div>
         <div class="lyric-block" id="lyric-1" style="left: 840px; top: 610px;"></div>
 
-        <!-- SCENE 2: res/2.jpg or .png -->
+        <!-- SCENE 2: res/2.jpg -->
         <div class="lyric-block" id="lyric-2a" style="left: 1840px; top: 250px;"></div>
         <div class="lyric-block" id="lyric-2b" style="left: 2240px; top: 250px;"></div>
         <div class="scene-item" style="left: 2120px; top: 720px;">
-          <div class="watercolor-art" id="art-2" data-img="res/2"></div>
+          <div class="watercolor-art" id="art-2" data-img="res/2.jpg"></div>
         </div>
 
-        <!-- SCENE 3: res/3.jpg or .png -->
+        <!-- SCENE 3: res/3.JPG (Capital JPG matched to your GitHub!) -->
         <div class="scene-item" style="left: 3300px; top: 380px;">
-          <div class="watercolor-art" id="art-3" data-img="res/3"></div>
+          <div class="watercolor-art" id="art-3" data-img="res/3.JPG"></div>
         </div>
         <div class="lyric-block" id="lyric-3" style="left: 3060px; top: 640px;"></div>
 
-        <!-- SCENE 4: res/4.jpg or .png -->
+        <!-- SCENE 4: res/4.JPG (Capital JPG matched to your GitHub!) -->
         <div class="lyric-block" id="lyric-4a" style="left: 4220px; top: 260px;"></div>
         <div class="scene-item" style="left: 4450px; top: 710px;">
-          <div class="watercolor-art" id="art-4" data-img="res/4"></div>
+          <div class="watercolor-art" id="art-4" data-img="res/4.JPG"></div>
         </div>
 
-        <!-- SCENE 5: res/5.jpg or .png -->
+        <!-- SCENE 5: res/5.jpg -->
         <div class="scene-item" style="left: 5620px; top: 390px;">
-          <div class="watercolor-art" id="art-5" data-img="res/5"></div>
+          <div class="watercolor-art" id="art-5" data-img="res/5.jpg"></div>
         </div>
         <div class="lyric-block" id="lyric-5" style="left: 5400px; top: 650px;"></div>
 
@@ -364,42 +339,35 @@
   </div>
 
   <script>
-    // --- 0. SMART IMAGE LOADER FROM "res/" FOLDER ---
-    // Automatically supports .jpg, .png, .jpeg, .webp inside "res/" folder!
-    const extensions = ['.jpg', '.png', '.jpeg', '.webp'];
-
-    function createSmartImg(basePath, className) {
+    // --- 0. IMAGE BUILDER WITH CASE-SENSITIVITY FALLBACK ---
+    function createLayerImg(exactPath, className) {
       const img = document.createElement('img');
       img.className = className;
       img.alt = "";
-      
-      // If user already wrote extension (e.g. res/1.png), use it directly
-      if (/\.(jpg|jpeg|png|webp|gif)$/i.test(basePath)) {
-        img.src = basePath;
-        return img;
-      }
+      img.src = exactPath;
 
-      // Otherwise automatically try .jpg -> .png -> .jpeg -> .webp
-      let extIndex = 0;
-      img.src = basePath + extensions[extIndex];
+      // Fallback just in case .JPG is renamed to .jpg later
       img.onerror = function() {
-        extIndex++;
-        if (extIndex < extensions.length) {
-          img.src = basePath + extensions[extIndex];
+        if (exactPath.endsWith('.JPG')) {
+          img.onerror = null;
+          img.src = exactPath.replace('.JPG', '.jpg');
+        } else if (exactPath.endsWith('.jpg')) {
+          img.onerror = null;
+          img.src = exactPath.replace('.jpg', '.JPG');
         }
       };
       return img;
     }
 
     document.querySelectorAll('.watercolor-art').forEach(box => {
-      const basePath = box.getAttribute('data-img');
+      const srcPath = box.getAttribute('data-img');
       const splatter = document.createElement('div');
       splatter.className = 'splatter-ring';
       
       box.appendChild(splatter);
-      box.appendChild(createSmartImg(basePath, 'layer layer-sketch'));
-      box.appendChild(createSmartImg(basePath, 'layer layer-wash'));
-      box.appendChild(createSmartImg(basePath, 'layer layer-paint'));
+      box.appendChild(createLayerImg(srcPath, 'layer layer-sketch'));
+      box.appendChild(createLayerImg(srcPath, 'layer layer-wash'));
+      box.appendChild(createLayerImg(srcPath, 'layer layer-paint'));
     });
 
     // --- 1. DESKTOP SCALER FOR MOBILE ---
@@ -552,21 +520,14 @@
 
     audio.addEventListener('ended', showEndScreen);
 
-    // Direct synchronous audio play on button click so Mobile & Desktop browsers never block autoplay
     function startExperience() {
-      // 1. Play audio immediately inside user click gesture
       audio.volume = 1.0;
       audio.currentTime = 0;
       applyAudioSpeed();
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(err => console.warn("Audio check res/song.mp3 or res/song.mp4:", err));
-      }
+      audio.play().catch(err => console.warn("Audio play warning:", err));
 
-      // 2. Trigger Fullscreen & Landscape
       requestFullScreenAndLock();
 
-      // 3. Hide Start Overlay & Show Controls
       document.getElementById('start-overlay').classList.add('hidden');
       document.getElementById('top-controls').classList.add('visible');
 
