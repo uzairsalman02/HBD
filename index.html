@@ -24,8 +24,8 @@
       content: "";
       position: fixed; inset: 0;
       pointer-events: none; z-index: 60;
-      opacity: 0.42;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.18'/%3E%3C/svg%3E");
+      opacity: 0.38;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.16'/%3E%3C/svg%3E");
     }
 
     /* 1. PORTRAIT ROTATE OVERLAY */
@@ -147,82 +147,76 @@
       transform: translate(-50%, -50%);
     }
 
-    /* 5. VIDEO-ACCURATE WATERCOLOR BRUSH & SKETCH REVEAL */
+    /* 5. CROSS-BROWSER SAFE WATERCOLOR BRUSH & SKETCH REVEAL */
     .watercolor-art {
       position: relative;
-      width: 560px; height: 390px;
-      filter: url(#torn-brush-edges);
+      width: 550px; height: 380px;
     }
 
     .watercolor-art .layer {
       position: absolute; inset: 0;
       width: 100%; height: 100%;
       object-fit: cover;
-      border-radius: 18px;
-      -webkit-mask-image: radial-gradient(ellipse 78% 74% at 50% 50%, #000 52%, rgba(0,0,0,0.65) 72%, transparent 95%);
-      mask-image: radial-gradient(ellipse 78% 74% at 50% 50%, #000 52%, rgba(0,0,0,0.65) 72%, transparent 95%);
+      border-radius: 28px;
+      /* Soft feathered watercolor vignette that works on 100% of browsers */
+      -webkit-mask-image: radial-gradient(ellipse 84% 80% at 50% 50%, #000 55%, rgba(0,0,0,0.5) 76%, transparent 98%);
+      mask-image: radial-gradient(ellipse 84% 80% at 50% 50%, #000 55%, rgba(0,0,0,0.5) 76%, transparent 98%);
     }
 
     /* Stage 1: Raw Ink & Pencil Sketch Outline */
     .layer-sketch {
-      filter: grayscale(100%) contrast(260%) brightness(1.15);
+      filter: grayscale(100%) contrast(240%) brightness(1.12);
       opacity: 0;
-      transform: scale(0.95);
-      transition: opacity 1.1s ease, transform 2.6s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: scale(0.94) rotate(-1deg);
+      transition: opacity 1s ease, transform 2.4s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     /* Stage 2: Light Watercolor Wash */
     .layer-wash {
-      filter: saturate(0.65) brightness(1.12);
+      filter: saturate(0.6) brightness(1.1) contrast(1.05);
       opacity: 0;
-      clip-path: polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%);
-      transition: clip-path 2.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.9s ease;
+      clip-path: circle(0% at 50% 50%);
+      transition: clip-path 2.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.9s ease;
     }
 
     /* Stage 3: Full Rich Watercolor Paint */
     .layer-paint {
-      filter: saturate(1.3) contrast(1.06);
+      filter: saturate(1.28) contrast(1.08);
       opacity: 0;
-      clip-path: polygon(
-        50% 50%, 50% 50%, 50% 50%, 50% 50%, 
-        50% 50%, 50% 50%, 50% 50%, 50% 50%
-      );
-      transition: clip-path 3.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 1s ease;
+      clip-path: circle(0% at 50% 50%);
+      transition: clip-path 3.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 1s ease;
     }
 
     .watercolor-art.step-sketch .layer-sketch {
       opacity: 0.85;
-      transform: scale(1);
+      transform: scale(1) rotate(0deg);
     }
     .watercolor-art.step-wash .layer-wash {
-      opacity: 0.78;
-      clip-path: polygon(-10% 10%, 90% -10%, 110% 85%, 5% 110%);
+      opacity: 0.8;
+      clip-path: circle(65% at 50% 50%);
     }
     .watercolor-art.step-paint .layer-paint {
       opacity: 1;
-      clip-path: polygon(
-        -15% -15%, 50% -20%, 115% -10%, 120% 50%, 
-        115% 115%, 50% 120%, -15% 110%, -20% 50%
-      );
+      clip-path: circle(100% at 50% 50%);
     }
 
     /* Paint Splatter Dots around active artwork */
     .splatter-ring {
-      position: absolute; inset: -25px;
+      position: absolute; inset: -28px;
       pointer-events: none;
       opacity: 0;
       transform: scale(0.85);
-      transition: opacity 1.8s ease 0.5s, transform 2.5s cubic-bezier(0.22, 1, 0.36, 1) 0.5s;
+      transition: opacity 1.6s ease 0.4s, transform 2.4s cubic-bezier(0.22, 1, 0.36, 1) 0.4s;
       background-image: 
-        radial-gradient(circle at 14% 22%, #d96b43 3px, transparent 4px),
-        radial-gradient(circle at 86% 18%, #e69a4c 4px, transparent 5px),
-        radial-gradient(circle at 82% 84%, #d96b43 2.5px, transparent 3.5px),
-        radial-gradient(circle at 18% 78%, #c85a32 3.5px, transparent 4.5px),
-        radial-gradient(circle at 92% 52%, #e69a4c 2px, transparent 3px),
-        radial-gradient(circle at 8% 48%, #d96b43 3px, transparent 4px);
+        radial-gradient(circle at 12% 20%, #d96b43 4px, transparent 5px),
+        radial-gradient(circle at 88% 16%, #e69a4c 5px, transparent 6px),
+        radial-gradient(circle at 84% 86%, #d96b43 3.5px, transparent 4.5px),
+        radial-gradient(circle at 16% 80%, #c85a32 4.5px, transparent 5.5px),
+        radial-gradient(circle at 93% 50%, #e69a4c 3px, transparent 4px),
+        radial-gradient(circle at 7% 48%, #d96b43 4px, transparent 5px);
     }
     .watercolor-art.step-paint .splatter-ring {
-      opacity: 0.65;
+      opacity: 0.75;
       transform: scale(1);
     }
 
@@ -250,16 +244,6 @@
   </style>
 </head>
 <body>
-
-  <!-- SVG Filter for Torn Watercolor Brush Edges -->
-  <svg style="position: absolute; width: 0; height: 0;" aria-hidden="true">
-    <defs>
-      <filter id="torn-brush-edges" x="-15%" y="-15%" width="130%" height="130%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="7" result="roughNoise" />
-        <feDisplacementMap in="SourceGraphic" in2="roughNoise" scale="28" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </defs>
-  </svg>
 
   <!-- Portrait Warning -->
   <div id="rotate-overlay">
@@ -290,47 +274,50 @@
 
   <canvas id="particles-canvas"></canvas>
 
-  <!-- Exact Audio Path from your GitHub repo: res/song.mp3 -->
-  <audio id="audio-player" src="res/song.mp3" preload="auto" playsinline></audio>
+  <!-- Audio Player with Vercel + GitHub Raw Fallback -->
+  <audio id="audio-player" preload="auto" playsinline crossorigin="anonymous">
+    <source src="./res/song.mp3" type="audio/mpeg">
+    <source src="https://raw.githubusercontent.com/uzairsalman02/HBD/main/res/song.mp3" type="audio/mpeg">
+  </audio>
 
-  <!-- Virtual 1920x1080 Stage (Exact filenames matched to your GitHub res/ folder!) -->
+  <!-- Virtual 1920x1080 Stage (Exact filenames from uzairsalman02/HBD/res) -->
   <div id="viewport">
     <div id="stage-scaler">
       <div id="world">
 
-        <!-- Intro Image: res/0.jpg -->
+        <!-- Intro Image: 0.jpg -->
         <div class="scene-item" style="left: 460px; top: 690px;">
-          <div class="watercolor-art step-sketch step-wash step-paint" style="width: 450px; height: 330px;" data-img="res/0.jpg"></div>
+          <div class="watercolor-art step-sketch step-wash step-paint" style="width: 450px; height: 330px;" data-file="0.jpg"></div>
         </div>
 
-        <!-- SCENE 1: res/1.jpg -->
+        <!-- SCENE 1: 1.jpg -->
         <div class="scene-item" style="left: 1080px; top: 360px;">
-          <div class="watercolor-art" id="art-1" data-img="res/1.jpg"></div>
+          <div class="watercolor-art" id="art-1" data-file="1.jpg"></div>
         </div>
         <div class="lyric-block" id="lyric-1" style="left: 840px; top: 610px;"></div>
 
-        <!-- SCENE 2: res/2.jpg -->
+        <!-- SCENE 2: 2.jpg -->
         <div class="lyric-block" id="lyric-2a" style="left: 1840px; top: 250px;"></div>
         <div class="lyric-block" id="lyric-2b" style="left: 2240px; top: 250px;"></div>
         <div class="scene-item" style="left: 2120px; top: 720px;">
-          <div class="watercolor-art" id="art-2" data-img="res/2.jpg"></div>
+          <div class="watercolor-art" id="art-2" data-file="2.jpg"></div>
         </div>
 
-        <!-- SCENE 3: res/3.JPG (Capital JPG matched to your GitHub!) -->
+        <!-- SCENE 3: 3.JPG -->
         <div class="scene-item" style="left: 3300px; top: 380px;">
-          <div class="watercolor-art" id="art-3" data-img="res/3.JPG"></div>
+          <div class="watercolor-art" id="art-3" data-file="3.JPG"></div>
         </div>
         <div class="lyric-block" id="lyric-3" style="left: 3060px; top: 640px;"></div>
 
-        <!-- SCENE 4: res/4.JPG (Capital JPG matched to your GitHub!) -->
+        <!-- SCENE 4: 4.JPG -->
         <div class="lyric-block" id="lyric-4a" style="left: 4220px; top: 260px;"></div>
         <div class="scene-item" style="left: 4450px; top: 710px;">
-          <div class="watercolor-art" id="art-4" data-img="res/4.JPG"></div>
+          <div class="watercolor-art" id="art-4" data-file="4.JPG"></div>
         </div>
 
-        <!-- SCENE 5: res/5.jpg -->
+        <!-- SCENE 5: 5.jpg -->
         <div class="scene-item" style="left: 5620px; top: 390px;">
-          <div class="watercolor-art" id="art-5" data-img="res/5.jpg"></div>
+          <div class="watercolor-art" id="art-5" data-file="5.jpg"></div>
         </div>
         <div class="lyric-block" id="lyric-5" style="left: 5400px; top: 650px;"></div>
 
@@ -339,35 +326,48 @@
   </div>
 
   <script>
-    // --- 0. IMAGE BUILDER WITH CASE-SENSITIVITY FALLBACK ---
-    function createLayerImg(exactPath, className) {
+    // --- 0. BULLETPROOF VERCEL + GITHUB RAW IMAGE LOADER ---
+    const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/uzairsalman02/HBD/main/res/";
+
+    function createReliableImg(fileName, className) {
       const img = document.createElement('img');
       img.className = className;
       img.alt = "";
-      img.src = exactPath;
 
-      // Fallback just in case .JPG is renamed to .jpg later
+      const swappedCase = fileName.endsWith('.JPG')
+        ? fileName.replace('.JPG', '.jpg')
+        : fileName.replace('.jpg', '.JPG');
+
+      // Priority list: 1. Vercel relative path -> 2. Case-swapped path -> 3. Direct GitHub Raw URL
+      const fallbacks = [
+        `./res/${fileName}`,
+        `/res/${fileName}`,
+        `./res/${swappedCase}`,
+        `${GITHUB_RAW_BASE}${fileName}`,
+        `${GITHUB_RAW_BASE}${swappedCase}`
+      ];
+
+      let idx = 0;
+      img.src = fallbacks[idx];
+
       img.onerror = function() {
-        if (exactPath.endsWith('.JPG')) {
-          img.onerror = null;
-          img.src = exactPath.replace('.JPG', '.jpg');
-        } else if (exactPath.endsWith('.jpg')) {
-          img.onerror = null;
-          img.src = exactPath.replace('.jpg', '.JPG');
+        idx++;
+        if (idx < fallbacks.length) {
+          img.src = fallbacks[idx];
         }
       };
       return img;
     }
 
     document.querySelectorAll('.watercolor-art').forEach(box => {
-      const srcPath = box.getAttribute('data-img');
+      const fileName = box.getAttribute('data-file');
       const splatter = document.createElement('div');
       splatter.className = 'splatter-ring';
       
       box.appendChild(splatter);
-      box.appendChild(createLayerImg(srcPath, 'layer layer-sketch'));
-      box.appendChild(createLayerImg(srcPath, 'layer layer-wash'));
-      box.appendChild(createLayerImg(srcPath, 'layer layer-paint'));
+      box.appendChild(createReliableImg(fileName, 'layer layer-sketch'));
+      box.appendChild(createReliableImg(fileName, 'layer layer-wash'));
+      box.appendChild(createReliableImg(fileName, 'layer layer-paint'));
     });
 
     // --- 1. DESKTOP SCALER FOR MOBILE ---
