@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Happy Birthday Wify</title>
+  <title>Humdard (Slowed Edition) - Watercolor Lyric Canvas</title>
   <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -63,10 +63,10 @@
       #rotate-overlay { display: flex; }
     }
 
-    /* 2. START & END OVERLAYS */
+    /* 2. START & END OVERLAYS + PRELOADER BAR */
     .modal-overlay {
       position: fixed; inset: 0; z-index: 150;
-      background: rgba(250, 246, 240, 0.94);
+      background: rgba(250, 246, 240, 0.96);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       transition: opacity 0.8s ease;
@@ -83,6 +83,28 @@
       font-size: clamp(1.6rem, 3.5vw, 2.5rem);
       color: #8c7a6b; margin-top: 6px; letter-spacing: 2px;
     }
+
+    /* Preloader Progress Bar */
+    #loader-wrap {
+      width: min(320px, 75vw);
+      margin-top: 20px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .progress-track {
+      width: 100%; height: 8px;
+      background: #e6dec8;
+      border-radius: 10px; overflow: hidden;
+    }
+    #progress-fill {
+      width: 0%; height: 100%;
+      background: #d96b43;
+      transition: width 0.25s ease;
+    }
+    #loader-text {
+      font-size: 1.6rem; color: #d96b43;
+      margin-top: 8px; letter-spacing: 1.5px; font-weight: 700;
+    }
+
     .action-btn {
       margin-top: 22px;
       padding: 10px 36px;
@@ -95,10 +117,16 @@
       box-shadow: 0 8px 24px rgba(217, 107, 67, 0.35);
       cursor: pointer;
       letter-spacing: 2.5px;
-      transition: transform 0.2s ease, background 0.2s ease;
+      transition: transform 0.2s ease, background 0.2s ease, opacity 0.4s ease;
     }
     .action-btn:hover { background: #c55a34; transform: scale(1.04); }
     .action-btn:active { transform: scale(0.95); }
+    .action-btn:disabled {
+      background: #cbbba8;
+      box-shadow: none;
+      cursor: wait;
+      opacity: 0.7;
+    }
 
     /* Speed & Fullscreen Controls (Top Right) */
     #top-controls {
@@ -147,7 +175,7 @@
       transform: translate(-50%, -50%);
     }
 
-    /* 5. CROSS-BROWSER SAFE WATERCOLOR BRUSH & SKETCH REVEAL */
+    /* 5. GPU-OPTIMIZED WATERCOLOR BRUSH & SKETCH REVEAL */
     .watercolor-art {
       position: relative;
       width: 550px; height: 380px;
@@ -158,7 +186,7 @@
       width: 100%; height: 100%;
       object-fit: cover;
       border-radius: 28px;
-      /* Soft feathered watercolor vignette that works on 100% of browsers */
+      will-change: clip-path, opacity, transform;
       -webkit-mask-image: radial-gradient(ellipse 84% 80% at 50% 50%, #000 55%, rgba(0,0,0,0.5) 76%, transparent 98%);
       mask-image: radial-gradient(ellipse 84% 80% at 50% 50%, #000 55%, rgba(0,0,0,0.5) 76%, transparent 98%);
     }
@@ -252,11 +280,19 @@
     <p>Video jaisa full experience dekhne ke liye phone ko Landscape karein ♥</p>
   </div>
 
-  <!-- Start Screen -->
+  <!-- Start Screen with Asset Preloader -->
   <div id="start-overlay" class="modal-overlay">
-    <h1>Happy Birthday Wify ♥</h1>
-    <p>Enjoy this special birthday message!</p>
-    <button class="action-btn" onclick="startExperience()">▶ PLAY SLOWED FULLSCREEN</button>
+    <h1>HUMDARD ♥</h1>
+    <p>Slowed & Dreamy Watercolor Lyric Experience</p>
+    
+    <div id="loader-wrap">
+      <div class="progress-track">
+        <div id="progress-fill"></div>
+      </div>
+      <div id="loader-text">LOADING MEMORIES... 0%</div>
+    </div>
+
+    <button id="play-btn" class="action-btn" onclick="startExperience()" disabled>⏳ PLEASE WAIT...</button>
   </div>
 
   <!-- End / Replay Screen -->
@@ -274,13 +310,13 @@
 
   <canvas id="particles-canvas"></canvas>
 
-  <!-- Audio Player with Vercel + GitHub Raw Fallback -->
+  <!-- Audio Player -->
   <audio id="audio-player" preload="auto" playsinline crossorigin="anonymous">
     <source src="./res/song.mp3" type="audio/mpeg">
     <source src="https://raw.githubusercontent.com/uzairsalman02/HBD/main/res/song.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Virtual 1920x1080 Stage (Exact filenames from uzairsalman02/HBD/res) -->
+  <!-- Virtual 1920x1080 Stage -->
   <div id="viewport">
     <div id="stage-scaler">
       <div id="world">
@@ -326,49 +362,86 @@
   </div>
 
   <script>
-    // --- 0. BULLETPROOF VERCEL + GITHUB RAW IMAGE LOADER ---
+    // --- 0. PRELOADER ENGINE (Pre-decodes all 6 images into GPU RAM before starting) ---
     const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/uzairsalman02/HBD/main/res/";
+    const boxes = document.querySelectorAll('.watercolor-art');
+    let loadedCount = 0;
+    const totalAssets = boxes.length;
 
-    function createReliableImg(fileName, className) {
-      const img = document.createElement('img');
-      img.className = className;
-      img.alt = "";
+    function updateProgress() {
+      loadedCount++;
+      const pct = Math.min(100, Math.round((loadedCount / totalAssets) * 100));
+      document.getElementById('progress-fill').style.width = pct + '%';
+      document.getElementById('loader-text').textContent = `LOADING MEMORIES... ${pct}%`;
 
+      if (loadedCount >= totalAssets) {
+        const btn = document.getElementById('play-btn');
+        btn.disabled = false;
+        btn.textContent = '▶ PLAY SLOWED FULLSCREEN';
+        document.getElementById('loader-text').textContent = 'READY TO PLAY ♥';
+      }
+    }
+
+    function preloadAndMountBox(box) {
+      const fileName = box.getAttribute('data-file');
       const swappedCase = fileName.endsWith('.JPG')
         ? fileName.replace('.JPG', '.jpg')
         : fileName.replace('.jpg', '.JPG');
 
-      // Priority list: 1. Vercel relative path -> 2. Case-swapped path -> 3. Direct GitHub Raw URL
       const fallbacks = [
         `./res/${fileName}`,
-        `/res/${fileName}`,
         `./res/${swappedCase}`,
         `${GITHUB_RAW_BASE}${fileName}`,
         `${GITHUB_RAW_BASE}${swappedCase}`
       ];
 
       let idx = 0;
-      img.src = fallbacks[idx];
+      const masterImg = new Image();
+      masterImg.decoding = 'async';
+      masterImg.fetchPriority = 'high';
 
-      img.onerror = function() {
-        idx++;
-        if (idx < fallbacks.length) {
-          img.src = fallbacks[idx];
+      masterImg.onload = function() {
+        const resolvedUrl = masterImg.src;
+        // Decode image into GPU bitmap memory so all 3 layers render with zero lag
+        const finishMount = () => {
+          box.innerHTML = `
+            <div class="splatter-ring"></div>
+            <img class="layer layer-sketch" src="${resolvedUrl}" alt="">
+            <img class="layer layer-wash" src="${resolvedUrl}" alt="">
+            <img class="layer layer-paint" src="${resolvedUrl}" alt="">
+          `;
+          updateProgress();
+        };
+
+        if (masterImg.decode) {
+          masterImg.decode().then(finishMount).catch(finishMount);
+        } else {
+          finishMount();
         }
       };
-      return img;
+
+      masterImg.onerror = function() {
+        idx++;
+        if (idx < fallbacks.length) {
+          masterImg.src = fallbacks[idx];
+        } else {
+          updateProgress(); // Don't block start button even if one image fails
+        }
+      };
+
+      masterImg.src = fallbacks[0];
     }
 
-    document.querySelectorAll('.watercolor-art').forEach(box => {
-      const fileName = box.getAttribute('data-file');
-      const splatter = document.createElement('div');
-      splatter.className = 'splatter-ring';
-      
-      box.appendChild(splatter);
-      box.appendChild(createReliableImg(fileName, 'layer layer-sketch'));
-      box.appendChild(createReliableImg(fileName, 'layer layer-wash'));
-      box.appendChild(createReliableImg(fileName, 'layer layer-paint'));
-    });
+    boxes.forEach(preloadAndMountBox);
+
+    // Safety fallback: Enable Play button after 6 seconds even on very slow 3G connection
+    setTimeout(() => {
+      const btn = document.getElementById('play-btn');
+      if (btn.disabled) {
+        btn.disabled = false;
+        btn.textContent = '▶ PLAY SLOWED FULLSCREEN';
+      }
+    }, 6000);
 
     // --- 1. DESKTOP SCALER FOR MOBILE ---
     const stageScaler = document.getElementById('stage-scaler');
